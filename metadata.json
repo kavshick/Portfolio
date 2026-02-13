@@ -1,0 +1,8 @@
+{
+  "name": "Kavshick K S | AI Engineer Portfolio",
+  "description": "A high-tech, futuristic portfolio for Kavshick K S featuring AI labs, game development showcases, and professional projects.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
