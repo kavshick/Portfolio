@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Send, Brain, Smile, Activity, Tag, Loader2, AlertCircle } from 'lucide-react';
-import { chatWithGemini, analyzeSentiment, classifyFeedback } from '../services/geminiService';
+import { chatWithAI, analyzeSentiment, classifyFeedback } from '../services/aiService';
 
 const AILab: React.FC = () => {
   // Chat State
@@ -30,10 +30,10 @@ const AILab: React.FC = () => {
     setIsChatLoading(true);
 
     try {
-      const response = await chatWithGemini(userMsg);
+      const response = await chatWithAI(userMsg);
       setChatHistory(prev => [...prev, { role: 'ai', text: response || 'I am processing that...' }]);
     } catch (err) {
-      setChatHistory(prev => [...prev, { role: 'ai', text: 'Error: Make sure your API key is configured.' }]);
+      setChatHistory(prev => [...prev, { role: 'ai', text: 'Error: Connection failed. Check service configuration.' }]);
     } finally {
       setIsChatLoading(false);
     }
@@ -70,7 +70,7 @@ const AILab: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12">
           <h1 className="text-4xl font-bold mb-4">AI <span className="text-cyan-500">Playground</span></h1>
-          <p className="text-slate-400">Live experiments powered by Google Gemini. Explore real-time intelligence demos.</p>
+          <p className="text-slate-400">Live experiments powered by advanced Large Language Models. Explore real-time intelligence demos.</p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
@@ -212,7 +212,7 @@ const AILab: React.FC = () => {
               <div>
                 <h4 className="text-sm font-bold text-orange-400 mb-1">Compute Note</h4>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  These tools use live LLM calls. Rate limits apply. Ensure the global API_KEY environment variable is configured for full functionality.
+                  These tools use live LLM calls for analysis. Rate limits apply. Ensure the global environment is configured for full functionality.
                 </p>
               </div>
             </div>

@@ -52,9 +52,9 @@ const Home: React.FC = () => {
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-48 h-48 lg:w-72 lg:h-72 rounded-3xl overflow-hidden glass-panel border-white/10 shadow-2xl transform rotate-12 hover:rotate-0 transition-transform duration-500">
                   <img 
-                    src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800" 
-                    alt="Technical Profile"
-                    className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all"
+                    src="https://lh3.googleusercontent.com/d/1h9-l4OYDvfDdhwA0yLKhud4maUCXT7KZ" 
+                    alt="Kavshick K S"
+                    className="w-full h-full object-cover object-top grayscale hover:grayscale-0 transition-all duration-500"
                   />
                 </div>
               </div>

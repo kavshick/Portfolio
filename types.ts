@@ -13,7 +13,13 @@ export interface Project {
 export interface Skill {
   name: string;
   level: number; // 0 to 100
-  category: 'AI' | 'Backend' | 'Frontend' | 'Tools' | 'GameDev';
+  category: 
+    | 'AI / Machine Learning' 
+    | 'Programming & Backend' 
+    | 'Data & Analytics' 
+    | 'Frontend & Web' 
+    | 'SaaS & Product Development' 
+    | 'Game & Simulation Development';
 }
 
 export interface TimelineItem {
@@ -22,4 +28,7 @@ export interface TimelineItem {
   company: string;
   description: string;
   type: 'work' | 'education';
+  link?: string;
+  linkText?: string;
+  badge?: string;
 }
