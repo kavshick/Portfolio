@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExternalLink, Github, Layers, X, CheckCircle2, Timer, Search } from 'lucide-react';
 import { PROJECTS } from '../constants';
@@ -31,18 +32,18 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => (
         )}
       </div>
     </div>
-    <div className="p-8">
+    <div className="p-6 sm:p-8">
       <div className="flex flex-wrap gap-2 mb-4">
         {project.tags.map(tag => (
-          <span key={tag} className="text-[10px] font-mono text-cyan-400 uppercase border border-cyan-500/20 px-2 py-0.5 rounded-md">
+          <span key={tag} className="text-[9px] sm:text-[10px] font-mono text-cyan-400 uppercase border border-cyan-500/20 px-2 py-0.5 rounded-md">
             {tag}
           </span>
         ))}
       </div>
-      <h3 className="text-2xl font-bold mb-3">{project.title}</h3>
-      <p className="text-slate-400 text-sm line-clamp-2 mb-6">{project.description}</p>
-      <div className="flex items-center text-cyan-400 font-bold gap-2 text-sm uppercase tracking-widest">
-        Detailed View <Layers size={16} />
+      <h3 className="text-xl sm:text-2xl font-bold mb-3">{project.title}</h3>
+      <p className="text-slate-400 text-xs sm:text-sm line-clamp-2 mb-6">{project.description}</p>
+      <div className="flex items-center text-cyan-400 font-bold gap-2 text-xs sm:text-sm uppercase tracking-widest">
+        Detailed View <Layers size={14} className="sm:w-4 sm:h-4" />
       </div>
     </div>
   </motion.div>
@@ -51,6 +52,16 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => (
 const Projects: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [filter, setFilter] = useState('All');
+  
+  // Ref for the modal content container
+  const modalContentRef = React.useRef<HTMLDivElement>(null);
+
+  // Scroll to top of modal content whenever selectedProject changes
+  React.useEffect(() => {
+    if (selectedProject && modalContentRef.current) {
+        modalContentRef.current.scrollTop = 0;
+    }
+  }, [selectedProject]);
 
   const categories = ['All', 'AI / Machine Learning', 'SaaS Platforms', 'Web Applications', 'Game Development'];
 
@@ -72,16 +83,16 @@ const Projects: React.FC = () => {
         </div>
 
         {/* Filter Bar */}
-        <div className="flex flex-wrap items-center gap-3 mb-12">
-          <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10 mr-4">
-            <Search size={16} className="text-slate-400" />
-            <span className="text-sm text-slate-300">Filter:</span>
+        <div className="flex flex-nowrap sm:flex-wrap items-center gap-3 mb-8 sm:mb-12 overflow-x-auto pb-4 sm:pb-0 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div className="flex-shrink-0 flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/5 rounded-full border border-white/10 mr-2 sm:mr-4">
+            <Search size={14} className="text-slate-400 sm:w-4 sm:h-4" />
+            <span className="text-xs sm:text-sm text-slate-300">Filter:</span>
           </div>
           {categories.map(cat => (
             <button
               key={cat}
               onClick={() => setFilter(cat)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+              className={`flex-shrink-0 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${
                 filter === cat 
                   ? 'bg-cyan-500 text-slate-950' 
                   : 'bg-white/5 text-slate-400 hover:bg-white/10'
@@ -128,73 +139,82 @@ const Projects: React.FC = () => {
           </section>
         )}
 
-        {/* Detailed View Modal */}
-        <AnimatePresence>
-          {selectedProject && (
-            <>
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setSelectedProject(null)}
-                className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[60]"
-              />
-              <motion.div 
-                layoutId={selectedProject.id}
-                className="fixed inset-x-4 top-10 bottom-10 md:inset-x-20 lg:inset-x-40 xl:inset-x-80 bg-slate-900 z-[70] rounded-3xl overflow-hidden shadow-2xl border border-white/10 flex flex-col"
-              >
-                <button 
+        {createPortal(
+          <AnimatePresence>
+            {selectedProject && (
+              <div className="fixed inset-0 z-[99999] flex items-center justify-center p-0 sm:p-8 pointer-events-none">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                   onClick={() => setSelectedProject(null)}
-                  className="absolute top-6 right-6 p-2 rounded-full bg-slate-950/50 text-white hover:bg-white/10 z-10"
+                  className="absolute inset-0 bg-slate-950/80 backdrop-blur-md pointer-events-auto"
+                />
+                <motion.div 
+                  layoutId={selectedProject.id}
+                  className="relative w-full h-full sm:w-[90vw] sm:max-w-4xl sm:h-[85vh] bg-slate-900 z-[70] rounded-none sm:rounded-3xl overflow-hidden shadow-2xl border border-white/10 flex flex-col pointer-events-auto"
                 >
-                  <X size={24} />
-                </button>
-                <div className="h-1/3 relative">
-                  <img src={selectedProject.image} alt={selectedProject.title} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent" />
-                </div>
-                <div className="flex-1 overflow-y-auto p-8 lg:p-12">
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="flex flex-wrap gap-2">
-                      {selectedProject.tags.map(tag => (
-                        <span key={tag} className="px-3 py-1 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-lg text-xs font-mono">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <span className={`px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
-                      selectedProject.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                    }`}>
-                      {selectedProject.status}
-                    </span>
-                  </div>
-                  <h2 className="text-3xl md:text-4xl font-bold mb-6">{selectedProject.title}</h2>
-                  <div className="prose prose-invert max-w-none">
-                    <p className="text-lg text-slate-300 mb-10 leading-relaxed">
-                      {selectedProject.details}
-                    </p>
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-4 mt-auto">
-                    {isUrl(selectedProject.repoLink) ? (
-                      <a 
-                        href={selectedProject.repoLink} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="flex-1 px-8 py-4 bg-cyan-500 text-slate-950 font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-cyan-400 transition-colors"
+                  <div className="absolute top-4 right-4 sm:top-6 sm:right-6 flex gap-2 z-20">
+                      <button 
+                        onClick={() => setSelectedProject(null)}
+                        className="p-2 rounded-full bg-slate-950/50 backdrop-blur-md text-white hover:bg-white/10 border border-white/10"
                       >
-                        <Github size={20} /> Repository Link
-                      </a>
-                    ) : (
-                      <div className="flex-1 px-8 py-4 bg-white/5 text-slate-400 font-bold rounded-xl flex items-center justify-center gap-2 border border-white/10">
-                        <Github size={20} /> {selectedProject.repoLink}
-                      </div>
-                    )}
+                        <X size={20} className="sm:w-6 sm:h-6" />
+                      </button>
                   </div>
-                </div>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
+
+                  <div className="h-48 sm:h-64 md:h-1/3 relative flex-shrink-0">
+                    <img src={selectedProject.image} alt={selectedProject.title} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent" />
+                  </div>
+
+                  <div ref={modalContentRef} className="flex-1 overflow-y-auto p-5 sm:p-8 lg:p-12 scroll-smooth">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4 sm:mb-6">
+                      <div className="flex flex-wrap gap-2">
+                        {selectedProject.tags.map(tag => (
+                          <span key={tag} className="px-2 py-0.5 sm:px-3 sm:py-1 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-lg text-[10px] sm:text-xs font-mono">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      <span className={`self-start px-2 py-0.5 sm:px-4 sm:py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
+                        selectedProject.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                      }`}>
+                        {selectedProject.status}
+                      </span>
+                    </div>
+                    
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 leading-tight">{selectedProject.title}</h2>
+                    
+                    <div className="prose prose-invert max-w-none mb-6 sm:mb-10">
+                      <p className="text-sm sm:text-base md:text-lg text-slate-300 leading-relaxed">
+                        {selectedProject.details}
+                      </p>
+                    </div>
+
+                    <div className="mt-auto pt-4 sm:pt-6 border-t border-white/5">
+                      {isUrl(selectedProject.repoLink) ? (
+                        <a 
+                          href={selectedProject.repoLink} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="w-full px-6 py-3 sm:px-8 sm:py-4 bg-cyan-500 text-slate-950 font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-cyan-400 transition-colors text-sm sm:text-base"
+                        >
+                          <Github size={18} className="sm:w-5 sm:h-5" /> View Project Repository
+                        </a>
+                      ) : (
+                        <div className="w-full px-6 py-3 sm:px-8 sm:py-4 bg-white/5 text-slate-400 font-bold rounded-xl flex items-center justify-center gap-2 border border-white/10 text-sm sm:text-base opacity-75 cursor-not-allowed">
+                          <Github size={18} className="sm:w-5 sm:h-5" /> Private Repository
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
       </div>
     </div>
   );

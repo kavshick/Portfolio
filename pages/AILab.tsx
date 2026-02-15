@@ -41,11 +41,12 @@ const AILab: React.FC = () => {
   const handleSentiment = async () => {
     if (!sentimentInput.trim() || isSentimentLoading) return;
     setIsSentimentLoading(true);
+    setSentimentResult(null); // Clear previous result
     try {
       const result = await localAnalyzeSentiment(sentimentInput);
       setSentimentResult(result);
     } catch (err) {
-      setSentimentResult('Error');
+      setSentimentResult('ERROR');
     } finally {
       setIsSentimentLoading(false);
     }
@@ -54,6 +55,7 @@ const AILab: React.FC = () => {
   const handleFeedback = async () => {
     if (!feedbackInput.trim() || isFeedbackLoading) return;
     setIsFeedbackLoading(true);
+    setFeedbackResult(null); // Clear previous result
     try {
       const result = await localClassifyFeedback(feedbackInput);
       setFeedbackResult(result);
@@ -127,9 +129,10 @@ const AILab: React.FC = () => {
           <div className="space-y-8">
             {/* Sentiment Analyzer */}
             <div className="glass-panel p-8 rounded-3xl">
-              <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
+              <h3 className="text-xl font-bold mb-4 flex items-center gap-3">
                 <Smile className="text-cyan-400" /> Sentiment Processor
               </h3>
+              <p className="text-xs text-slate-400 mb-6">A lightweight, keyword-based model. Works best with simple, direct English.</p>
               <div className="space-y-4">
                 <textarea 
                   value={sentimentInput}
@@ -152,6 +155,7 @@ const AILab: React.FC = () => {
                       className={`px-4 py-2 rounded-lg font-bold text-sm uppercase tracking-widest ${
                         sentimentResult === 'Positive' ? 'text-emerald-400 bg-emerald-500/10' :
                         sentimentResult === 'Negative' ? 'text-red-400 bg-red-500/10' :
+                        sentimentResult === 'ERROR' ? 'text-red-400 bg-red-500/10' :
                         'text-cyan-400 bg-cyan-500/10'
                       }`}
                     >
@@ -164,9 +168,10 @@ const AILab: React.FC = () => {
 
             {/* Feedback Classifier */}
             <div className="glass-panel p-8 rounded-3xl">
-              <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
+              <h3 className="text-xl font-bold mb-4 flex items-center gap-3">
                 <Tag className="text-cyan-400" /> Feedback Classifier (JSON)
               </h3>
+              <p className="text-xs text-slate-400 mb-6">A lightweight, keyword-based model. Works best with simple, direct English.</p>
               <div className="space-y-4">
                 <input 
                   type="text"

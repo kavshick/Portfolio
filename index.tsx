@@ -8,18 +8,37 @@ if (!rootElement) {
 }
 
 const root = ReactDOM.createRoot(rootElement);
+
+// Function to hide loader with simple fade
+const hideLoader = () => {
+  const loader = document.getElementById('loader');
+  const root = document.getElementById('root');
+  
+  if (loader && root) {
+    // Start home page transition immediately
+    root.classList.add('visible');
+    
+    // Fade out loader
+    loader.style.opacity = '0';
+    loader.style.transition = 'opacity 0.8s ease-out';
+    
+    // Remove loader from DOM after fade
+    setTimeout(() => {
+      loader.style.display = 'none';
+    }, 800);
+  }
+};
+
+// Check if animation is already done
+if ((window as any).loaderAnimationComplete) {
+  hideLoader();
+} else {
+  // Wait for animation to finish
+  window.addEventListener('loaderAnimationComplete', hideLoader);
+}
+
 root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
 );
-
-// Hide the loader once React has rendered
-const loader = document.getElementById('loader');
-if (loader) {
-  loader.style.opacity = '0';
-  // Remove from DOM after transition
-  setTimeout(() => {
-    loader.style.display = 'none';
-  }, 500);
-}

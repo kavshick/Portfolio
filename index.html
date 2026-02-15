@@ -18,6 +18,16 @@
             justify-content: center;
             transition: opacity 0.5s ease-out;
         }
+
+        .loader-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
         .loader-content {
             position: relative;
             width: 150px;
@@ -25,32 +35,156 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            margin-bottom: 20px;
+            perspective: 1000px; /* Enable 3D perspective */
         }
-        .loader-ring {
-            position: absolute;
-            border: 2px solid rgba(34, 211, 238, 0.5);
-            border-radius: 50%;
-            animation: sonar-pulse 2s ease-out infinite;
+        
+        .logo-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
         }
-        .loader-ring:nth-child(2) {
-            animation-delay: -1s;
+        
+        .logo-wrapper.flipped {
+            transform: rotateY(180deg);
         }
+
         .loader-logo {
             font-family: 'Orbitron', sans-serif;
-            font-size: 48px;
+            font-size: 80px; 
             font-weight: bold;
             color: #f8fafc;
             animation: logo-fade 2s infinite ease-in-out;
+            backface-visibility: hidden;
+            
+            /* Centering using flexbox for reliability */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex; 
+            align-items: center;
+            justify-content: center;
+            
+            margin: 0;
+            padding: 0;
+            line-height: 1;
         }
+        
+        .loader-tick {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            /* Center perfectly and pre-rotate 180deg for the back face */
+            transform: translate(-50%, -50%) rotateY(180deg); 
+            width: 80px; 
+            height: 80px;
+            color: #ffffff; /* White color for the tick stroke */
+            backface-visibility: hidden;
+        }
+
+        /* Loading Bar & Logs */
+        .loading-bar-container {
+            width: 240px; 
+            height: 2px;
+            background-color: rgba(30, 41, 59, 0.5);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 20px; /* Increased margin */
+            position: relative;
+        }
+
+        .loading-bar {
+            height: 100%;
+            background-color: #22d3ee; /* Cyan-400 */
+            width: 0%;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+        }
+
+        .loading-log {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            margin-top: 12px;
+            height: 90px;
+            width: 240px; /* Match loading bar width for perfect alignment */
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-start; 
+            text-align: left;
+            padding-left: 0; /* Remove padding as the container width now matches exactly */
+            opacity: 1;
+            letter-spacing: 0.5px;
+            line-height: 1.6;
+            mask-image: linear-gradient(to bottom, transparent, black 10%);
+            -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%);
+        }
+        
+        .log-entry {
+            animation: slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        @keyframes slide-in {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Root Fade In */
+        #root {
+            opacity: 0;
+            transform: scale(1.05); /* Start slightly zoomed in */
+            filter: blur(10px); /* Start blurry */
+            transition: opacity 1.5s ease-out, transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1), filter 1.5s ease-out;
+            will-change: opacity, transform, filter;
+        }
+        #root.visible {
+            opacity: 1;
+            transform: none;
+            filter: none;
+        }
+
+        /* Transition Effects */
+        .zoom-transition {
+            background-color: #020617 !important; /* Keep background solid during zoom to hide root */
+            pointer-events: none;
+        }
+
+        .zoom-transition .loader-wrapper .loading-bar-container,
+        .zoom-transition .loader-wrapper .loading-log,
+        .zoom-transition .loader-ring {
+            opacity: 0;
+            transition: opacity 0.2s ease-out; /* Hide clutter quickly */
+        }
+
+        .zoom-transition .loader-content {
+            /* Massive scale to ensure the K fills the viewport */
+            transform: scale(300); 
+            opacity: 0;
+            /* 
+               Transform: slow start, fast middle, slow end (smooth) 
+               Opacity: fade out only at the very end of the zoom 
+            */
+            transition: transform 1.2s cubic-bezier(0.85, 0, 0.15, 1), opacity 0.4s ease-out 0.8s;
+        }
+
         @keyframes sonar-pulse {
             0% {
-                width: 0;
-                height: 0;
+                transform: scale(0.5);
                 opacity: 0.5;
             }
             100% {
-                width: 150px;
-                height: 150px;
+                transform: scale(1);
                 opacity: 0;
             }
         }
@@ -114,13 +248,88 @@
 </head>
 <body>
     <div id="loader">
-        <div class="loader-content">
-            <div class="loader-logo">K</div>
-            <div class="loader-ring"></div>
-            <div class="loader-ring"></div>
+        <div class="loader-wrapper">
+            <div class="loader-content">
+                <div class="logo-wrapper" id="logo-flipper">
+                    <div class="loader-logo">K</div>
+                    <svg class="loader-tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+                <div class="loader-ring"></div>
+                <div class="loader-ring"></div>
+            </div>
+            <div class="loading-bar-container">
+                <div class="loading-bar" id="load-bar"></div>
+            </div>
+            <div class="loading-log" id="load-log"></div>
         </div>
     </div>
     <div id="root"></div>
+    <script>
+        (function() {
+            const logs = [
+                { time: 0, text: "> System Initializing...", color: "#94a3b8" }, // slate-400
+                { time: 600, text: "> Loading Neural Assets...", color: "#22d3ee" }, // cyan-400
+                { time: 1200, text: "> Optimizing Algorithms...", color: "#c084fc" }, // purple-400
+                { time: 1800, text: "> Syncing User Interface...", color: "#38bdf8" }, // sky-400
+                { time: 2400, text: "> Access Granted.", color: "#34d399" } // emerald-400
+            ];
+            
+            const TOTAL_DURATION = 3500;
+            
+            const bar = document.getElementById('load-bar');
+            const logContainer = document.getElementById('load-log');
+            const flipper = document.getElementById('logo-flipper');
+            
+            if (!bar || !logContainer || !flipper) return;
+
+            let startTime = null;
+            let lastLogIndex = -1;
+            let animationEnded = false;
+
+            function updateLoader(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const elapsed = timestamp - startTime;
+                
+                // 1. Smooth Progress Bar
+                const rawProgress = (elapsed / TOTAL_DURATION) * 100;
+                const progress = Math.min(rawProgress, 100);
+                
+                bar.style.width = progress + '%';
+
+                // 2. Multi-line Logs
+                for (let i = lastLogIndex + 1; i < logs.length; i++) {
+                    if (elapsed >= logs[i].time) {
+                        const entry = document.createElement('div');
+                        entry.className = 'log-entry';
+                        entry.innerText = logs[i].text;
+                        entry.style.color = logs[i].color;
+                        logContainer.appendChild(entry);
+                        
+                        lastLogIndex = i;
+                    }
+                }
+
+                if (elapsed < TOTAL_DURATION) {
+                     requestAnimationFrame(updateLoader);
+                } else if (!animationEnded) {
+                     animationEnded = true;
+                     
+                     // 3. Flip K to Tick
+                     flipper.classList.add('flipped');
+                     
+                     // 4. Wait for user to see the tick (1s), then trigger page transition
+                     setTimeout(() => {
+                         window.loaderAnimationComplete = true;
+                         window.dispatchEvent(new Event('loaderAnimationComplete'));
+                     }, 1000); 
+                }
+            }
+            
+            requestAnimationFrame(updateLoader);
+        })();
+    </script>
     <script type="module" src="/index.tsx"></script>
 </body>
 </html>

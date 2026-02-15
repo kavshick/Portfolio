@@ -36,51 +36,109 @@ export const localChat = async (message: string): Promise<string> => {
   return "I'm not advanced enough to understand that yet. Try asking about 'projects', 'skills', or 'contact'.";
 };
 
-// 2. Sentiment Processor (Local)
+// 2. Sentiment Processor (Local) - Final Rework for Stability
 export const localAnalyzeSentiment = async (text: string): Promise<'Positive' | 'Negative' | 'Neutral'> => {
-  await new Promise(resolve => setTimeout(resolve, 300)); // Simulate latency
+  await new Promise(resolve => setTimeout(resolve, 300));
 
-  const doc = nlp(text);
-  const sentiment = doc.sentiment();
+  if (!text || text.trim() === '') {
+    return 'Neutral';
+  }
 
-  // Using a threshold for more definitive classification
-  if (sentiment.score > 0.5) {
-    return 'Positive';
+  try {
+    const lowerText = text.toLowerCase();
+    const doc = nlp(lowerText);
+    let score = 0;
+
+    // Expanded and more reliable keyword lists
+    const positiveKeywords = [
+      'good', 'great', 'awesome', 'excellent', 'love', 'like', 'amazing', 'fantastic', 
+      'perfect', 'nice', 'happy', 'pleased', 'wonderful', 'superb', 'brilliant'
+    ];
+    const negativeKeywords = [
+      'bad', 'terrible', 'awful', 'horrible', 'hate', 'dislike', 'poor', 'broken', 
+      'error', 'problem', 'issue', 'sucks', 'crap', 'fail'
+    ];
+
+    positiveKeywords.forEach(keyword => {
+      if (lowerText.includes(keyword)) {
+        score++;
+      }
+    });
+
+    negativeKeywords.forEach(keyword => {
+      if (lowerText.includes(keyword)) {
+        score--;
+      }
+    });
+
+    // Simple negation handling
+    const hasNegation = doc.has('(not|never|isnt|wasnt|dont)');
+    if (hasNegation && score !== 0) {
+      score = score * -1;
+    }
+
+    if (score > 0) {
+      return 'Positive';
+    }
+    if (score < 0) {
+      return 'Negative';
+    }
+    
+    return 'Neutral';
+  } catch (e) {
+    console.error("Sentiment analysis failed:", e);
+    // If any part of the NLP library fails, return a neutral state instead of crashing.
+    return 'Neutral';
   }
-  if (sentiment.score < -0.5) {
-    return 'Negative';
-  }
-  
-  return 'Neutral';
 };
 
-// 3. Feedback Classifier (Local)
+// 3. Feedback Classifier (Local) - Reworked with more categories
 export const localClassifyFeedback = async (feedback: string): Promise<object> => {
-  await new Promise(resolve => setTimeout(resolve, 400)); // Simulate latency
+  await new Promise(resolve => setTimeout(resolve, 400));
 
-  const doc = nlp(feedback);
+  if (!feedback || feedback.trim() === '') {
+    return { category: 'GENERAL', confidence: 0.9, reason: "Input was empty.", topics: [] };
+  }
 
-  if (doc.has('(bug|error|broken|fail|crash)')) {
-    return {
-      category: 'BUG',
-      confidence: 0.95,
-      reason: "The feedback contains terms commonly associated with software bugs.",
-      topics: doc.nouns().out('array')
-    };
+  const doc = nlp(feedback.toLowerCase());
+  let scores = { bug: 0, feature: 0, positive: 0, negative: 0 };
+
+  const keywords = {
+    bug: ['bug', 'error', 'broken', 'fail', 'crash', 'not working', 'issue', 'problem'],
+    feature: ['feature', 'idea', 'add', 'suggestion', 'improve', 'request', 'should have', 'recommend'],
+    positive: ['good', 'great', 'awesome', 'excellent', 'love', 'like', 'amazing', 'fantastic', 'perfect', 'nice'],
+    negative: ['bad', 'terrible', 'awful', 'horrible', 'hate', 'dislike', 'poor']
+  };
+
+  (Object.keys(keywords) as Array<keyof typeof keywords>).forEach(key => {
+    keywords[key].forEach(keyword => {
+      if (doc.has(keyword)) {
+        scores[key]++;
+      }
+    });
+  });
+
+  // Determine the category with the highest score
+  const topCategory = Object.entries(scores).reduce((a, b) => b[1] > a[1] ? b : a);
+
+  if (topCategory[1] > 0) {
+    switch (topCategory[0]) {
+      case 'bug':
+        return { category: 'BUG', confidence: Math.min(0.95, 0.8 + scores.bug * 0.1), reason: "Feedback contains terms related to bugs.", topics: doc.nouns().out('array') };
+      case 'feature':
+        return { category: 'FEATURE REQUEST', confidence: Math.min(0.95, 0.8 + scores.feature * 0.1), reason: "Feedback suggests a new feature or improvement.", topics: doc.nouns().out('array') };
+      case 'positive':
+        return { category: 'POSITIVE FEEDBACK', confidence: Math.min(0.95, 0.8 + scores.positive * 0.1), reason: "Feedback contains positive sentiment.", topics: doc.adjectives().out('array') };
+      case 'negative':
+        return { category: 'NEGATIVE FEEDBACK', confidence: Math.min(0.95, 0.8 + scores.negative * 0.1), reason: "Feedback contains negative sentiment.", topics: doc.nouns().out('array') };
+    }
   }
-  if (doc.has('(feature|idea|add|suggestion|improve)')) {
-    return {
-      category: 'FEATURE REQUEST',
-      confidence: 0.92,
-      reason: "The feedback suggests an improvement or a new feature.",
-      topics: doc.verbs().out('array').concat(doc.nouns().out('array'))
-    };
-  }
-  
+
+  // Default to GENERAL
   return {
     category: 'GENERAL',
     confidence: 0.88,
-    reason: "The feedback does not contain specific keywords for bugs or feature requests.",
+    reason: "The feedback does not contain a significant number of keywords for a specific category.",
     topics: doc.topics().out('array')
   };
 };
