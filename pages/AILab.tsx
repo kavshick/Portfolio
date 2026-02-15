@@ -1,14 +1,20 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Send, Brain, Smile, Activity, Tag, Loader2, AlertCircle } from 'lucide-react';
-import { chatWithAI, analyzeSentiment, classifyFeedback } from '../services/aiService';
+import { localChat, localAnalyzeSentiment, localClassifyFeedback } from '../services/localAiService';
+import { predefinedQuestions } from '../local-ai-demos/Neural Chat Assistant/questions';
 
 const AILab: React.FC = () => {
   // Chat State
   const [chatInput, setChatInput] = useState('');
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'ai', text: string }[]>([]);
   const [isChatLoading, setIsChatLoading] = useState(false);
+
+  useEffect(() => {
+    setChatHistory([
+      { role: 'ai', text: "Welcome! I'm a local assistant trained to answer questions about Kavshick. Please select one of the topics below." }
+    ]);
+  }, []);
 
   // Sentiment State
   const [sentimentInput, setSentimentInput] = useState('');
@@ -20,30 +26,23 @@ const AILab: React.FC = () => {
   const [feedbackResult, setFeedbackResult] = useState<any>(null);
   const [isFeedbackLoading, setIsFeedbackLoading] = useState(false);
 
-  const handleChat = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!chatInput.trim() || isChatLoading) return;
-
-    const userMsg = chatInput;
-    setChatInput('');
-    setChatHistory(prev => [...prev, { role: 'user', text: userMsg }]);
+  const handlePredefinedQuestion = async (question: string, answer: string) => {
+    // Add user's chosen question to history
+    setChatHistory(prev => [...prev, { role: 'user', text: question }]);
     setIsChatLoading(true);
 
-    try {
-      const response = await chatWithAI(userMsg);
-      setChatHistory(prev => [...prev, { role: 'ai', text: response || 'I am processing that...' }]);
-    } catch (err) {
-      setChatHistory(prev => [...prev, { role: 'ai', text: 'Error: Connection failed. Check service configuration.' }]);
-    } finally {
+    // Simulate thinking and add AI's answer
+    setTimeout(() => {
+      setChatHistory(prev => [...prev, { role: 'ai', text: answer }]);
       setIsChatLoading(false);
-    }
+    }, 600);
   };
 
   const handleSentiment = async () => {
     if (!sentimentInput.trim() || isSentimentLoading) return;
     setIsSentimentLoading(true);
     try {
-      const result = await analyzeSentiment(sentimentInput);
+      const result = await localAnalyzeSentiment(sentimentInput);
       setSentimentResult(result);
     } catch (err) {
       setSentimentResult('Error');
@@ -56,7 +55,7 @@ const AILab: React.FC = () => {
     if (!feedbackInput.trim() || isFeedbackLoading) return;
     setIsFeedbackLoading(true);
     try {
-      const result = await classifyFeedback(feedbackInput);
+      const result = await localClassifyFeedback(feedbackInput);
       setFeedbackResult(result);
     } catch (err) {
       setFeedbackResult({ error: 'Failed to classify' });
@@ -88,12 +87,6 @@ const AILab: React.FC = () => {
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {chatHistory.length === 0 && (
-                <div className="text-center text-slate-500 py-12">
-                  <Activity className="mx-auto mb-4 opacity-20" size={48} />
-                  <p className="text-sm">Initiate conversation with the core processor.</p>
-                </div>
-              )}
               {chatHistory.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[80%] px-4 py-2 rounded-2xl text-sm ${
@@ -114,24 +107,20 @@ const AILab: React.FC = () => {
               )}
             </div>
 
-            <form onSubmit={handleChat} className="p-4 border-t border-white/5 bg-slate-900/50">
-              <div className="relative">
-                <input 
-                  type="text"
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  placeholder="Ask me anything..."
-                  className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500 transition-all pr-12"
-                />
-                <button 
-                  type="submit"
-                  disabled={isChatLoading}
-                  className="absolute right-2 top-2 p-2 bg-cyan-500 text-slate-950 rounded-lg hover:bg-cyan-400 disabled:opacity-50 transition-colors"
-                >
-                  <Send size={18} />
-                </button>
+            <div className="p-4 border-t border-white/5 bg-slate-900/50">
+              <div className="grid grid-cols-2 gap-2">
+                {predefinedQuestions.map((item, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handlePredefinedQuestion(item.question, item.answer)}
+                    disabled={isChatLoading}
+                    className="text-left text-xs p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    {item.question}
+                  </button>
+                ))}
               </div>
-            </form>
+            </div>
           </section>
 
           {/* Right Column: Other Demos */}

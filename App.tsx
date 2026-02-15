@@ -39,8 +39,8 @@ const PageTransition: React.FC<React.PropsWithChildren<{}>> = ({ children }) => 
 const AnimatedRoutes = () => {
   const location = useLocation();
   return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
+    <AnimatePresence mode="wait" key={location.pathname}>
+      <Routes>
         <Route path="/" element={<PageTransition><Home /></PageTransition>} />
         <Route path="/about" element={<PageTransition><About /></PageTransition>} />
         <Route path="/projects" element={<PageTransition><Projects /></PageTransition>} />
@@ -58,7 +58,7 @@ const App: React.FC = () => {
     <Router>
       <div className="relative flex flex-col min-h-screen">
         <ScrollToTop />
-        <ParticleBackground />
+        {/* <ParticleBackground /> */}
         <Navbar />
         
         <main className="flex-grow">

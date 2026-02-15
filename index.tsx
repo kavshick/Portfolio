@@ -1,4 +1,3 @@
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -14,3 +13,13 @@ root.render(
     <App />
   </React.StrictMode>
 );
+
+// Hide the loader once React has rendered
+const loader = document.getElementById('loader');
+if (loader) {
+  loader.style.opacity = '0';
+  // Remove from DOM after transition
+  setTimeout(() => {
+    loader.style.display = 'none';
+  }, 500);
+}

@@ -50,7 +50,7 @@ const Home: React.FC = () => {
               <div className="absolute inset-0 border-2 border-cyan-500/30 rounded-full animate-[spin_10s_linear_infinite]"></div>
               <div className="absolute inset-4 border border-blue-500/20 rounded-full animate-[spin_15s_linear_infinite_reverse]"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-48 h-48 lg:w-72 lg:h-72 rounded-3xl overflow-hidden glass-panel border-white/10 shadow-2xl transform rotate-12 hover:rotate-0 transition-transform duration-500">
+                <div className="w-48 h-48 lg:w-72 lg:h-72 rounded-3xl overflow-hidden glass-panel border-white/10 shadow-2xl transition-transform duration-500">
                   <img 
                     src="https://lh3.googleusercontent.com/d/1h9-l4OYDvfDdhwA0yLKhud4maUCXT7KZ" 
                     alt="Kavshick K S"

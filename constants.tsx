@@ -124,14 +124,14 @@ export const SKILLS: Skill[] = [
 
 export const TIMELINE: TimelineItem[] = [
   {
-    year: 'Present',
-    title: 'AI Engineer & SaaS Builder',
-    company: 'Independent / Startups',
-    description: 'Focusing on autonomous AI systems and scalable SaaS architectures.',
-    type: 'work'
+    year: '2023 – Present',
+    title: 'B.Tech in Artificial Intelligence & Data Science',
+    company: 'Velammal Engineering College',
+    description: 'Currently pursuing a Bachelor’s degree in Artificial Intelligence and Data Science, focusing on machine learning, intelligent systems, and real-world AI applications.',
+    type: 'education'
   },
   {
-    year: '2023 – Present',
+    year: '2025 – Present',
     title: 'Web Development Contributor',
     company: 'Velammal Engineering College — WebTeam',
     description: 'Worked as part of the institutional WebTeam contributing to live web platforms. Responsibilities included backend feature development, system maintenance, and production content/data integration.',
@@ -141,18 +141,12 @@ export const TIMELINE: TimelineItem[] = [
     linkText: 'Validated Institutional Contribution — VEC WebTeam'
   },
   {
-    year: '2024',
+    year: '2026',
     title: 'QA Proctored Test Platform (Team Project)',
     company: 'Velammal Engineering College',
     description: 'Contributed to a secure web-based examination platform. Engineered key backend modules including exam session handling, authentication workflows, test submission pipelines, and activity logging systems for institutional deployment.',
     type: 'work',
     badge: 'Institutional Deployment Experience'
   },
-  {
-    year: '2023 – 2027 (Current)',
-    title: 'B.Tech in Artificial Intelligence & Data Science',
-    company: 'Velammal Engineering College',
-    description: 'Currently pursuing a Bachelor’s degree in Artificial Intelligence and Data Science, focusing on machine learning, intelligent systems, and real-world AI applications.',
-    type: 'education'
-  }
+  
 ];
